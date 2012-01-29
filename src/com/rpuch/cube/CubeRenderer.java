@@ -4,6 +4,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import com.rpuch.cube.game.Cube;
 import com.rpuch.cube.game.Game;
+import com.rpuch.cube.game.Geom;
 import com.rpuch.cube.game.Trig;
 import com.rpuch.cube.gl.GLCommand;
 import com.rpuch.cube.gl.RotateCommand;
@@ -232,42 +233,49 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         // When using GL_MODELVIEW, you must set the view point
 //        GLU.gluLookAt(gl, 0, 0, 5, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        // computing vector to rotate around X axis
-        float rx = 0f;
-        float ry = 1f;
-        float rz = 0f;
-        double cos = Math.cos(Trig.degreesToRadians(-game.getEyeZenith()));
-        double sin = Math.sin(Trig.degreesToRadians(-game.getEyeZenith()));
-        float rrx = rx;
-        float rry = (float) (ry*cos - rz*sin);
-        float rrz = (float) (ry*sin + rz*cos);
+//        // computing vector to rotate around X axis
+//        float rx = 0f;
+//        float ry = 1f;
+//        float rz = 0f;
+//        double cos = Math.cos(Trig.degreesToRadians(-game.getEyeZenith()));
+//        double sin = Math.sin(Trig.degreesToRadians(-game.getEyeZenith()));
+//        float rrx = rx;
+//        float rry = (float) (ry*cos - rz*sin);
+//        float rrz = (float) (ry*sin + rz*cos);
+//
+//        gl.glRotatef(game.getEyeAzimuth(), 0f, 1f, 0f);
+////        gl.glRotatef(game.getEyeAzimuth(), rrx, rry, rrz);
+//
+//        // computing vector to rotate around Y axis
+//        rx = 1f;
+//        ry = 0f;
+//        rz = 0f;
+//        cos = Math.cos(Trig.degreesToRadians(-game.getEyeAzimuth()));
+//        sin = Math.sin(Trig.degreesToRadians(-game.getEyeAzimuth()));
+//        rrx = (float) (rx*cos + rz * sin);
+//        rry = ry;
+//        rrz = (float) (-rx*sin + rz*cos);
+//
+//        gl.glRotatef(game.getEyeZenith(), rrx, rry, rrz);
+//
+//
+//        float r = 0.2f;
+////        float eyeX = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())) * Math.cos(Trig.degreesToRadians(game.getEyeAzimuth())));
+////        float eyeY = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())) * Math.sin(Trig.degreesToRadians(game.getEyeAzimuth())));
+////        float eyeZ = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())));
+//
+//        float eyeX = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())) * Math.sin(Trig.degreesToRadians(game.getEyeAzimuth())));
+//        float eyeY = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())));
+//        float eyeZ = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())) * Math.cos(Trig.degreesToRadians(game.getEyeAzimuth())));
+//
+////        GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        gl.glRotatef(game.getEyeAzimuth(), 0f, 1f, 0f);
-//        gl.glRotatef(game.getEyeAzimuth(), rrx, rry, rrz);
 
-        // computing vector to rotate around Y axis
-        rx = 1f;
-        ry = 0f;
-        rz = 0f;
-        cos = Math.cos(Trig.degreesToRadians(-game.getEyeAzimuth()));
-        sin = Math.sin(Trig.degreesToRadians(-game.getEyeAzimuth()));
-        rrx = (float) (rx*cos + rz * sin);
-        rry = ry;
-        rrz = (float) (-rx*sin + rz*cos);
-
-        gl.glRotatef(game.getEyeZenith(), rrx, rry, rrz);
-
-
-        float r = 0.2f;
-//        float eyeX = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())) * Math.cos(Trig.degreesToRadians(game.getEyeAzimuth())));
-//        float eyeY = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())) * Math.sin(Trig.degreesToRadians(game.getEyeAzimuth())));
-//        float eyeZ = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())));
-
-        float eyeX = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())) * Math.sin(Trig.degreesToRadians(game.getEyeAzimuth())));
-        float eyeY = (float) (r * Math.sin(Trig.degreesToRadians(game.getEyeZenith())));
-        float eyeZ = (float) (r * Math.cos(Trig.degreesToRadians(game.getEyeZenith())) * Math.cos(Trig.degreesToRadians(game.getEyeAzimuth())));
-
-//        GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Geom.XYZ eye = game.getEyePoint();
+        Geom.XYZ up = game.getUpVector();
+        GLU.gluLookAt(gl, (float) eye.getX(), (float) eye.getY(), (float) eye.getZ(),
+                0f, 0f, 0f,
+                (float) up.getX(), (float) up.getY(), (float) up.getZ());
 
 
 //        gl.glColor4f(0.63671875f, 0.76953125f, 0.22265625f, 0.0f);

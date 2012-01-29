@@ -5,9 +5,8 @@ package com.rpuch.cube.game;
  */
 public class Game {
     private Cube cube;
-    // the following are relative to (0,0,0) which is the center of the model
-    private float eyeZenith = 0f; // degrees
-    private float eyeAzimuth = 0f; // degrees
+    private Geom.XYZ eyePoint = new Geom.XYZ(0, 0, 0.2);
+    private Geom.XYZ upVector = new Geom.XYZ(0, 1, 0); // up vector
 
     public Game() {
         cube = new Cube(3);
@@ -17,24 +16,26 @@ public class Game {
         return cube;
     }
 
-    public float getEyeZenith() {
-        return eyeZenith;
+    public Geom.XYZ getEyePoint() {
+        return eyePoint;
     }
 
-    public float getEyeAzimuth() {
-        return eyeAzimuth;
+    public Geom.XYZ getUpVector() {
+        return upVector;
     }
 
-    public void addToEyeZenith(float delta) {
-        eyeZenith += delta;
+    public void rotateInTerminatorPlain(float degrees) {
+        Geom.XYZ sideVector = eyePoint.negate().vectorProduct(upVector).normalise();
+        eyePoint = Geom.arbitraryRotate(eyePoint, Trig.degreesToRadians(degrees), sideVector);
+        upVector = Geom.arbitraryRotate(upVector, Trig.degreesToRadians(degrees), sideVector);
     }
 
-    public void addToEyeAzimuth(float delta) {
-        eyeAzimuth += delta;
+    public void rotateInHorizonPlain(float degrees) {
+        eyePoint = Geom.arbitraryRotate(eyePoint, Trig.degreesToRadians(degrees), upVector);
     }
 
     public void resetEye() {
-        eyeZenith = 0f;
-        eyeAzimuth = 0f;
+        eyePoint = new Geom.XYZ(0, 0, 5);
+        upVector = new Geom.XYZ(0, 1, 0);
     }
 }

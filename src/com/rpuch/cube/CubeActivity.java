@@ -81,16 +81,16 @@ public class CubeActivity extends Activity {
 
         if (event.getAction() == MotionEvent.ACTION_DOWN && renderer != null) {
             if (left) {
-                getGame().addToEyeAzimuth(-15f);
+                getGame().rotateInHorizonPlain(-15f);
             }
             if (right) {
-                getGame().addToEyeAzimuth(+15f);
+                getGame().rotateInHorizonPlain(+15f);
             }
             if (top) {
-                getGame().addToEyeZenith(-15f);
+                getGame().rotateInTerminatorPlain(-15f);
             }
             if (bottom) {
-                getGame().addToEyeZenith(+15f);
+                getGame().rotateInTerminatorPlain(+15f);
             }
         }
         return true;
