@@ -37,6 +37,45 @@ public class Geom {
        return(q);
     }
 
+    // a,b,c define plain, x,y define line
+    public static LineAndPlainIntersect computeAndAndPlainIntersection(XYZ a, XYZ b, XYZ c, XYZ x, XYZ y) {
+        XYZ normal = b.subtract(a).vectorProduct(c.subtract(a)).normalise();
+        XYZ lineToPlainVector = a.subtract(x);
+        double lineToPlainDistance = normal.dotProduct(lineToPlainVector);
+        XYZ lineVector = y.subtract(x);
+        double lineDistance = normal.dotProduct(lineVector);
+        if (lineDistance != 0) {
+            XYZ result = x.add(lineVector.scale(lineToPlainDistance / lineDistance));
+            return new LineAndPlainIntersect(LineAndPlain.INTERSECT, result);
+        } else if (lineToPlainDistance == 0) {
+            return new LineAndPlainIntersect(LineAndPlain.BELONG, null);
+        } else {
+            return new LineAndPlainIntersect(LineAndPlain.PARALLEL, null);
+        }
+    }
+
+    public static enum LineAndPlain {
+        INTERSECT, BELONG, PARALLEL
+    }
+
+    public static class LineAndPlainIntersect {
+        private LineAndPlain mode;
+        private XYZ intersection;
+
+        private LineAndPlainIntersect(LineAndPlain mode, XYZ intersection) {
+            this.mode = mode;
+            this.intersection = intersection;
+        }
+
+        public LineAndPlain getMode() {
+            return mode;
+        }
+
+        public XYZ getIntersection() {
+            return intersection;
+        }
+    }
+
     public static class XYZ {
         double x, y, z;
 
@@ -58,8 +97,12 @@ public class Geom {
             return z;
         }
 
+        public double magnitude() {
+            return Math.sqrt(x*x + y*y + z*z);
+        }
+
         public XYZ normalise() {
-            double mag = Math.sqrt(x*x + y*y + z*z);
+            double mag = magnitude();
             if (mag == 0) {
                 return this;
             }
@@ -70,8 +113,24 @@ public class Geom {
             return new XYZ(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
         }
 
+        public XYZ scale(double scalar) {
+            return new XYZ(x*scalar, y*scalar, z*scalar);
+        }
+
         public XYZ negate() {
-            return new XYZ(-x, -y, -z);
+            return scale(-1);
+        }
+
+        public XYZ add(XYZ v) {
+            return new XYZ(x+v.x, y+v.y, z+v.z);
+        }
+
+        public XYZ subtract(XYZ v) {
+            return new XYZ(x-v.x, y-v.y, z-v.z);
+        }
+
+        public double dotProduct(XYZ v) {
+            return x*v.x + y*v.y + z*v.z;
         }
     }
 }

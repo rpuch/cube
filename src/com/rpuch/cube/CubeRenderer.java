@@ -5,9 +5,8 @@ import android.opengl.GLU;
 import com.rpuch.cube.game.Cube;
 import com.rpuch.cube.game.Game;
 import com.rpuch.cube.game.Geom;
-import com.rpuch.cube.game.Trig;
+import com.rpuch.cube.game.GeomConstants;
 import com.rpuch.cube.gl.GLCommand;
-import com.rpuch.cube.gl.RotateCommand;
 import com.rpuch.cube.tech.Objs;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -52,16 +51,17 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         triangleVB.put(triangleCoords);    // add the coordinates to the FloatBuffer
         triangleVB.position(0);            // set the buffer to read the first coordinate
 
-        TrianglesBuilder builder = new TrianglesBuilder()
-                .straightRectZ(-0.5f, -0.5f, -0.5f, 1f, 1f, 0xff0000)
-                .straightRectZ(0.5f, -0.5f, 0.5f, -1f, 1f, 0xff0000)
-                .straightRectX(-0.5f, -0.5f, 0.5f, -1f, 1f, 0x00ff00)
-                .straightRectX(0.5f, -0.5f, 0.5f, -1f, 1f, 0x00ff00)
-                .straightRectY(-0.5f, -0.5f, -0.5f, 1f, 1f, 0x0000ff)
-                .straightRectY(-0.5f, 0.5f, -0.5f, 1f, 1f, 0x0000ff);
-        float[] coords = builder.toTriangles();
-        vertices = createVerticesBuffer(coords, builder.toTrianglesColors());
-        verticesCount = builder.getTrianglesVerticesCount();
+//        final float mod = GeomConstants.CUBE_MAGNITUDE;
+//        TrianglesBuilder builder = new TrianglesBuilder()
+//                .straightRectZ(-mod, -mod, -mod, 2*mod, 2*mod, 0xff0000)
+//                .straightRectZ(mod, -mod, mod, -2*mod, 2*mod, 0xff0000)
+//                .straightRectX(-mod, -mod, mod, -2*mod, 2*mod, 0x00ff00)
+//                .straightRectX(mod, -mod, mod, -2*mod, 2*mod, 0x00ff00)
+//                .straightRectY(-mod, -mod, -mod, 2*mod, 2*mod, 0x0000ff)
+//                .straightRectY(-mod, mod, -mod, 2*mod, 2*mod, 0x0000ff);
+//        float[] coords = builder.toTriangles();
+//        vertices = createVerticesBuffer(coords, builder.toTrianglesColors());
+//        verticesCount = builder.getTrianglesVerticesCount();
 
         TrianglesBuilder cubeBuilder = createCubeBuilder();
         cubeVertices = createVerticesBuffer(cubeBuilder.toTriangles(), cubeBuilder.toTrianglesColors());
@@ -77,14 +77,14 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
     }
 
     private TrianglesBuilder createCubeBuilder() {
-        final float mod = 0.5f;
+        final float mod = GeomConstants.CUBE_MAGNITUDE;
         TrianglesBuilder builder = new TrianglesBuilder();
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.FRONT), -mod, +mod, -mod, +1f, -1f, 0f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BACK), +mod, +mod, +mod, -1f, -1f, 0f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.LEFT), -mod, +mod, +mod, 0f, -1f, -1f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.RIGHT), +mod, +mod, -mod, 0f, -1f, +1f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BOTTOM), +mod, -mod, +mod, -1f, 0f, -1f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.TOP), -mod, +mod, +mod, +1f, 0f, -1f);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.FRONT), -mod, +mod, -mod, +2*mod, -2*mod, 0f);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BACK), +mod, +mod, +mod, -2*mod, -2*mod, 0f);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.LEFT), -mod, +mod, +mod, 0f, -2*mod, -2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.RIGHT), +mod, +mod, -mod, 0f, -2*mod, +2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BOTTOM), +mod, -mod, +mod, -2*mod, 0f, -2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.TOP), -mod, +mod, +mod, +2*mod, 0f, -2*mod);
         return builder;
     }
 
@@ -104,7 +104,7 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
             branch = 0;
         } else if (ydir == 0f) {
             branch = 1;
-        } else { // ydir == 0f
+        } else { // zdir == 0f
             branch = 2;
         }
         for (int row = 0; row < dim; row++) {
@@ -192,20 +192,39 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
         gl.glEnable(GL10.GL_DEPTH_TEST);
+//        gl.glDepthFunc(GL10.GL_LEQUAL);
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         gl.glViewport(0, 0, width, height);
 
+        System.out.println(String.format("Surface %d, %d", width, height));
+
         // make adjustments for screen ratio
-//        float ratio = (float) width / height;
+        float ratio = (float) width / height;
 //        gl.glMatrixMode(GL10.GL_PROJECTION);        // set matrix to projection mode
 //        gl.glLoadIdentity();                        // reset the matrix to its default state
 //        gl.glFrustumf(-ratio, ratio, -1, 1, 3, 7);  // apply the projection matrix
+
+        gl.glMatrixMode(GL10.GL_PROJECTION);        // set matrix to projection mode
+        gl.glLoadIdentity();                        // reset the matrix to its default state
+
+        System.out.println("Error is " + gl.glGetError());
+
+//        gl.glFrustumf(-1f, +1f, -1f, 1f, 1, 10);  // apply the projection matrix
+
+        gl.glOrthof(-1f, +1f, -1f, 1f, 1, 10);
+
+//        GLU.gluPerspective(gl, 90, 1, );
+
+        System.out.println(GLU.gluErrorString(gl.glGetError()));
+        System.out.println("Error is " + gl.glGetError());
     }
 
     public void onDrawFrame(GL10 gl) {
         executeCommands(gl); // TODO: why here?
+
+//        gl.glEnable(GL10.GL_DEPTH_TEST);
 
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 

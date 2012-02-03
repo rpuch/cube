@@ -3,7 +3,6 @@ package com.rpuch.cube;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import com.rpuch.cube.game.Game;
 import com.rpuch.cube.tech.Objs;
 
@@ -15,6 +14,11 @@ public class CubeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = new CubeView(this);
+//        view.setOnTouchListener(new View.OnTouchListener() {
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                return false;  //To change body of implemented methods use File | Settings | File Templates.
+//            }
+//        });
         setContentView(view);
     }
 
@@ -67,33 +71,6 @@ public class CubeActivity extends Activity {
             default:
                 return super.onKeyUp(keyCode, event);
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int width = view.getWidth();
-        int height = view.getHeight();
-        boolean left = event.getX() < width / 3;
-        boolean right = event.getX() > width * 2 / 3;
-        boolean top = event.getY() < height / 3;
-        boolean bottom = event.getY() > height * 2 / 3;
-        CubeRenderer renderer = Objs.getRenderer();
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN && renderer != null) {
-            if (left) {
-                getGame().rotateInHorizonPlain(-15f);
-            }
-            if (right) {
-                getGame().rotateInHorizonPlain(+15f);
-            }
-            if (top) {
-                getGame().rotateInTerminatorPlain(-15f);
-            }
-            if (bottom) {
-                getGame().rotateInTerminatorPlain(+15f);
-            }
-        }
-        return true;
     }
 
     private void resetGeometry() {

@@ -33,6 +33,20 @@ public class TrianglesBuilder {
                 x, y, z,
                 color
         );
+
+//        triangle(
+//                x + width, y + height, z,
+//                x + width, y, z,
+//                x, y, z,
+//                color
+//        );
+//        triangle(
+//                x, y, z,
+//                x, y + height, z,
+//                x + width, y + height, z,
+//                color
+//        );
+
         return this;
     }
 
@@ -49,6 +63,20 @@ public class TrianglesBuilder {
                 x, y, z,
                 color
         );
+
+//        triangle(
+//                x, y + height, z + depth,
+//                x, y, z + depth,
+//                x, y, z,
+//                color
+//        );
+//        triangle(
+//                x, y, z,
+//                x, y + height, z + depth,
+//                x, y + height, z,
+//                color
+//        );
+
         return this;
     }
 
@@ -65,6 +93,20 @@ public class TrianglesBuilder {
                 x, y, z,
                 color
         );
+
+//        triangle(
+//                x + width, y, z + depth,
+//                x + width, y, z,
+//                x, y, z,
+//                color
+//        );
+//        triangle(
+//                x, y, z,
+//                x, y, z + depth,
+//                x + width, y, z + depth,
+//                color
+//        );
+
         return this;
     }
 
