@@ -6,7 +6,7 @@ package com.rpuch.cube.game;
 public class Game {
     private Cube cube;
 
-    private static Geom.XYZ defaultEyePoint = new Geom.XYZ(0, 0, -5);
+    private static Geom.XYZ defaultEyePoint = new Geom.XYZ(0, 0, +5);
     private static Geom.XYZ defaultUpVector = new Geom.XYZ(0, 1, 0);
 
     private Geom.XYZ eyePoint = defaultEyePoint;
@@ -61,9 +61,9 @@ public class Game {
                 // y=+mod
                 new Plain(Cube.TOP, new Geom.XYZ(-mod, +mod, -mod), new Geom.XYZ(-mod, +mod, +mod), new Geom.XYZ(+mod, +mod, -mod)),
                 // z=-mod
-                new Plain(Cube.FRONT, new Geom.XYZ(-mod, -mod, -mod), new Geom.XYZ(-mod, +mod, -mod), new Geom.XYZ(+mod, -mod, -mod)),
+                new Plain(Cube.FRONT, new Geom.XYZ(-mod, -mod, +mod), new Geom.XYZ(-mod, +mod, +mod), new Geom.XYZ(+mod, -mod, +mod)),
                 // z=+mod
-                new Plain(Cube.BACK, new Geom.XYZ(-mod, -mod, +mod), new Geom.XYZ(-mod, +mod, +mod), new Geom.XYZ(+mod, -mod, +mod)),
+                new Plain(Cube.BACK, new Geom.XYZ(-mod, -mod, -mod), new Geom.XYZ(-mod, +mod, -mod), new Geom.XYZ(+mod, -mod, -mod)),
         };
 
         double minDistance = Double.POSITIVE_INFINITY;
@@ -85,10 +85,58 @@ public class Game {
         if (nearestPlain != null) {
             // yeah, we found it!
             System.out.println(String.format("<%f, %f, %f>", intersection.getX(), intersection.getY(), intersection.getZ()));
-            return new Facet(1, 1, 1); // TODO
+            return createFacet(nearestPlain.face, intersection);
         } else {
             return null;
         }
+    }
+
+    private Facet createFacet(int face, Geom.XYZ intersection) {
+        double x,y;
+        switch (face) {
+            case Cube.LEFT:
+            case Cube.RIGHT:
+                x = intersection.getZ();
+                y = intersection.getY();
+                break;
+            case Cube.TOP:
+            case Cube.BOTTOM:
+                x = intersection.getX();
+                y = intersection.getZ();
+                break;
+            case Cube.FRONT:
+            case Cube.BACK:
+                x = intersection.getX();
+                y = intersection.getY();
+                break;
+            default: throw new IllegalArgumentException("Unknown face "  + face);
+        }
+
+        double fracX, fracY;
+        fracX = (x + GeomConstants.CUBE_MAGNITUDE) / (GeomConstants.CUBE_MAGNITUDE * 2);
+        // in <x,y> Y axis goes UP, so negating it
+        fracY = 1.0 - (y + GeomConstants.CUBE_MAGNITUDE) / (GeomConstants.CUBE_MAGNITUDE * 2);
+
+        int faceX, faceY;
+        faceX = Math.min((int) (fracX * cube.getSize()), cube.getSize() - 1);
+        faceY = Math.min((int) (fracY * cube.getSize()), cube.getSize() - 1);
+
+        switch (face) {
+            case Cube.BACK:
+            case Cube.RIGHT:
+            case Cube.BOTTOM:
+                faceX = cube.getSize() - 1 - faceX;
+                break;
+        }
+
+        switch (face) {
+            case Cube.TOP:
+            case Cube.BOTTOM:
+                faceY = cube.getSize() - 1 - faceY;
+                break;
+        }
+
+        return new Facet(face, faceY, faceX);
     }
 
     private boolean isPointInFace(Plain plain, Geom.XYZ intersection) {
@@ -105,7 +153,7 @@ public class Game {
             case Cube.BACK:
                 return Math.abs(intersection.getX()) <= GeomConstants.CUBE_MAGNITUDE
                         && Math.abs(intersection.getY()) <= GeomConstants.CUBE_MAGNITUDE;
-            default: throw new IllegalArgumentException("Unknown plain "  + plain.face);
+            default: throw new IllegalArgumentException("Unknown face "  + plain.face);
         }
     }
 

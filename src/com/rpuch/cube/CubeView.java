@@ -33,6 +33,7 @@ public class CubeView extends GLSurfaceView {
             float glY = - ((float) (event.getY() - height/2)) / (height/2);
             Game.Facet facet = getGame().getClickedFacet(glX, glY);
             if (facet != null) {
+                System.out.println(String.format("Face %d, <row,col> is <%d,%d>", facet.getFace(), facet.getRow(), facet.getCol()));
                 // TODO:
             } else {
                 boolean left = event.getX() < width / 3;

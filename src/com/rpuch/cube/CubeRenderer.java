@@ -79,12 +79,12 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
     private TrianglesBuilder createCubeBuilder() {
         final float mod = GeomConstants.CUBE_MAGNITUDE;
         TrianglesBuilder builder = new TrianglesBuilder();
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.FRONT), -mod, +mod, -mod, +2*mod, -2*mod, 0f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BACK), +mod, +mod, +mod, -2*mod, -2*mod, 0f);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.LEFT), -mod, +mod, +mod, 0f, -2*mod, -2*mod);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.RIGHT), +mod, +mod, -mod, 0f, -2*mod, +2*mod);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BOTTOM), +mod, -mod, +mod, -2*mod, 0f, -2*mod);
-        addFace(builder, getCube().getSize(), getCube().getFace(Cube.TOP), -mod, +mod, +mod, +2*mod, 0f, -2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.FRONT), -mod, +mod, +mod, +2*mod, -2*mod, 0f);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BACK), +mod, +mod, -mod, -2*mod, -2*mod, 0f);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.LEFT), -mod, +mod, -mod, 0f, -2*mod, +2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.RIGHT), +mod, +mod, +mod, 0f, -2*mod, -2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.BOTTOM), +mod, -mod, -mod, -2*mod, 0f, +2*mod);
+        addFace(builder, getCube().getSize(), getCube().getFace(Cube.TOP), -mod, +mod, -mod, +2*mod, 0f, +2*mod);
         return builder;
     }
 
@@ -301,6 +301,8 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 //?        drawVertexBuffer(gl, vertices, verticesCount);
         drawVertexBuffer(gl, cubeVertices, cubeVerticesCount);
+
+
     }
 
     private void executeCommands(GL10 gl) {
