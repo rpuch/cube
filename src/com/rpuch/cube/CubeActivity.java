@@ -14,11 +14,6 @@ public class CubeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = new CubeView(this);
-//        view.setOnTouchListener(new View.OnTouchListener() {
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                return false;  //To change body of implemented methods use File | Settings | File Templates.
-//            }
-//        });
         setContentView(view);
     }
 

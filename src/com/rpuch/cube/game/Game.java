@@ -12,6 +12,9 @@ public class Game {
     private Geom.XYZ eyePoint = defaultEyePoint;
     private Geom.XYZ upVector = defaultUpVector; // up vector
 
+    private Facet selectionStart = null;
+    private Facet selectionEnd = null;
+
     public Game() {
         cube = new Cube(3);
     }
@@ -84,7 +87,7 @@ public class Game {
 
         if (nearestPlain != null) {
             // yeah, we found it!
-            System.out.println(String.format("<%f, %f, %f>", intersection.getX(), intersection.getY(), intersection.getZ()));
+//            System.out.println(String.format("<%f, %f, %f>", intersection.getX(), intersection.getY(), intersection.getZ()));
             return createFacet(nearestPlain.face, intersection);
         } else {
             return null;
@@ -112,31 +115,79 @@ public class Game {
             default: throw new IllegalArgumentException("Unknown face "  + face);
         }
 
-        double fracX, fracY;
+        int faceX = glXToFacetX(x, face);
+        int faceY = glYToFacetY(y, face);
+
+        return new Facet(face, faceY, faceX);
+    }
+
+    private int glXToFacetX(double x, int face) {
+        double fracX;
+        int faceX;
         fracX = (x + GeomConstants.CUBE_MAGNITUDE) / (GeomConstants.CUBE_MAGNITUDE * 2);
-        // in <x,y> Y axis goes UP, so negating it
-        fracY = 1.0 - (y + GeomConstants.CUBE_MAGNITUDE) / (GeomConstants.CUBE_MAGNITUDE * 2);
-
-        int faceX, faceY;
         faceX = Math.min((int) (fracX * cube.getSize()), cube.getSize() - 1);
-        faceY = Math.min((int) (fracY * cube.getSize()), cube.getSize() - 1);
+        faceX = flipByXOnTurnedFaces(faceX, face);
+        return faceX;
+    }
 
+    private int flipByXOnTurnedFaces(int faceX, int face) {
+        return flipByXOnTurnedFaces(faceX, face, cube.getSize() - 1);
+    }
+
+    private int flipByXOnTurnedFaces(int faceX, int face, int edge) {
         switch (face) {
             case Cube.BACK:
             case Cube.RIGHT:
             case Cube.BOTTOM:
-                faceX = cube.getSize() - 1 - faceX;
+                faceX = edge - faceX;
                 break;
         }
+        return faceX;
+    }
 
+    private int glYToFacetY(double y, int face) {
+        double fracY;
+        int faceY;
+        // in <x,y> Y axis goes UP, so negating it
+        fracY = 1.0 - (y + GeomConstants.CUBE_MAGNITUDE) / (GeomConstants.CUBE_MAGNITUDE * 2);
+        faceY = Math.min((int) (fracY * cube.getSize()), cube.getSize() - 1);
+        faceY = flipByYOnTurnedFaces(faceY, face);
+        return faceY;
+    }
+
+    private int flipByYOnTurnedFaces(int faceY, int face) {
+        return flipByYOnTurnedFaces(faceY, face, cube.getSize() - 1);
+    }
+
+    private int flipByYOnTurnedFaces(int faceY, int face, int edge) {
         switch (face) {
             case Cube.TOP:
             case Cube.BOTTOM:
-                faceY = cube.getSize() - 1 - faceY;
+                faceY = edge - faceY;
                 break;
         }
+        return faceY;
+    }
 
-        return new Facet(face, faceY, faceX);
+    private double facetXToGlX(int faceX, int face) {
+        faceX = flipByXOnTurnedFacesFromTheEdge(faceX, face);
+        double frac = ((double) faceX) / cube.getSize();
+        return frac * (GeomConstants.CUBE_MAGNITUDE * 2) - GeomConstants.CUBE_MAGNITUDE;
+    }
+
+    private int flipByXOnTurnedFacesFromTheEdge(int faceX, int face) {
+        return flipByXOnTurnedFaces(faceX, face, cube.getSize());
+    }
+
+    private int flipByYOnTurnedFacesFromTheEdge(int faceY, int face) {
+        return flipByYOnTurnedFaces(faceY, face, cube.getSize());
+    }
+
+    private double facetYToGlY(int faceY, int face) {
+        faceY = flipByYOnTurnedFacesFromTheEdge(faceY, face);
+        double frac = ((double) faceY) / cube.getSize();
+        // in GL Y axis goes UP, so negating it
+        return ((1.0-frac) * (GeomConstants.CUBE_MAGNITUDE * 2) - GeomConstants.CUBE_MAGNITUDE);
     }
 
     private boolean isPointInFace(Plain plain, Geom.XYZ intersection) {
@@ -154,6 +205,64 @@ public class Game {
                 return Math.abs(intersection.getX()) <= GeomConstants.CUBE_MAGNITUDE
                         && Math.abs(intersection.getY()) <= GeomConstants.CUBE_MAGNITUDE;
             default: throw new IllegalArgumentException("Unknown face "  + plain.face);
+        }
+    }
+
+    public Facet getSelectionStart() {
+        return selectionStart;
+    }
+
+    public Facet getSelectionEnd() {
+        return selectionEnd;
+    }
+
+    public void startSelection(Facet start) {
+        selectionStart = start;
+        selectionEnd = start;
+    }
+
+    public void resetSelection() {
+        selectionStart = selectionEnd = null;
+    }
+
+    public XYZ4 getSelection() {
+        Facet start = selectionStart;
+        Facet end = selectionEnd;
+        if (start == null || end == null) {
+            return null;
+        }
+        return buildSelectionCoords(start, end);
+    }
+
+    private XYZ4 buildSelectionCoords(Facet start, Facet end) {
+        int minRow = Math.min(start.getRow(), end.getRow());
+        int maxRow = Math.max(start.getRow(), end.getRow());
+        int minCol = Math.min(start.getCol(), end.getCol());
+        int maxCol = Math.max(start.getCol(), end.getCol());
+        Geom.XYZ p1 = buildCornerCoords(start.getFace(), minCol, minRow);
+        Geom.XYZ p2 = buildCornerCoords(start.getFace(), maxCol + 1, minRow);
+        Geom.XYZ p3 = buildCornerCoords(start.getFace(), maxCol + 1, maxRow + 1);
+        Geom.XYZ p4 = buildCornerCoords(start.getFace(), minCol, maxRow + 1);
+        return new XYZ4(p1, p2, p3, p4);
+    }
+
+    private Geom.XYZ buildCornerCoords(int face, int col, int row) {
+        double glX = facetXToGlX(col, face);
+        double glY = facetYToGlY(row, face);
+        switch (face) {
+            case Cube.FRONT:
+                return new Geom.XYZ(glX, glY, +GeomConstants.CUBE_MAGNITUDE);
+            case Cube.BACK:
+                return new Geom.XYZ(glX, glY, -GeomConstants.CUBE_MAGNITUDE);
+            case Cube.LEFT:
+                return new Geom.XYZ(-GeomConstants.CUBE_MAGNITUDE, glY, glX);
+            case Cube.RIGHT:
+                return new Geom.XYZ(+GeomConstants.CUBE_MAGNITUDE, glY, glX);
+            case Cube.TOP:
+                return new Geom.XYZ(glX, +GeomConstants.CUBE_MAGNITUDE, glY);
+            case Cube.BOTTOM:
+                return new Geom.XYZ(glX, -GeomConstants.CUBE_MAGNITUDE, glY);
+            default: throw new IllegalArgumentException("Unknown face: " + face);
         }
     }
 
@@ -190,6 +299,26 @@ public class Game {
             this.a = a;
             this.b = b;
             this.c = c;
+        }
+    }
+
+    public static class XYZ2 {
+        public final Geom.XYZ p1, p2;
+
+        public XYZ2(Geom.XYZ p1, Geom.XYZ p2) {
+            this.p1 = p1;
+            this.p2 = p2;
+        }
+    }
+
+    public static class XYZ4 {
+        public final Geom.XYZ p1, p2, p3, p4;
+
+        public XYZ4(Geom.XYZ p1, Geom.XYZ p2, Geom.XYZ p3, Geom.XYZ p4) {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+            this.p4 = p4;
         }
     }
 }

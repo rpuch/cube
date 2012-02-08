@@ -60,11 +60,11 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 //                .straightRectY(-mod, -mod, -mod, 2*mod, 2*mod, 0x0000ff)
 //                .straightRectY(-mod, mod, -mod, 2*mod, 2*mod, 0x0000ff);
 //        float[] coords = builder.toTriangles();
-//        vertices = createVerticesBuffer(coords, builder.toTrianglesColors());
+//        vertices = createTrianglesColoredVerticesBuffer(coords, builder.toTrianglesColors());
 //        verticesCount = builder.getTrianglesVerticesCount();
 
         TrianglesBuilder cubeBuilder = createCubeBuilder();
-        cubeVertices = createVerticesBuffer(cubeBuilder.toTriangles(), cubeBuilder.toTrianglesColors());
+        cubeVertices = createTrianglesColoredVerticesBuffer(cubeBuilder.toTriangles(), cubeBuilder.toTrianglesColors());
         cubeVerticesCount = cubeBuilder.getTrianglesVerticesCount();
     }
 
@@ -141,7 +141,7 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    private Buffer createVerticesBuffer(float[] coords, int[] colors) {
+    private Buffer createTrianglesColoredVerticesBuffer(float[] coords, int[] colors) {
         if (coords.length % 9 != 0) {
             throw new IllegalArgumentException("Coords length must be divisible by 9 but it's " + coords.length);
         }
@@ -182,6 +182,25 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         return buf;
     }
 
+    private ByteBuffer createLineLoopCoordsColoredBuffer(float[] coords, int color) {
+        if (coords.length % 3 != 0) {
+            throw new IllegalArgumentException("Coords length must be divisible by 3 but it's " + coords.length);
+        }
+
+        ByteBuffer buf = ByteBuffer.allocateDirect(coords.length * 4 + coords.length / 3 * 4);
+        buf.order(ByteOrder.nativeOrder());
+        for (int i = 0; i < coords.length / 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                buf.putFloat(coords[i * 3 + j]);
+            }
+            buf.put((byte) ((color >> 16) & 0xff));
+            buf.put((byte) ((color >> 8) & 0xff));
+            buf.put((byte) (color & 0xff));
+            buf.put((byte) 255);
+        }
+        return buf;
+    }
+
     public void onSurfaceCreated(GL10 gl, EGLConfig eglConfig) {
         Objs.setRenderer(this);
 
@@ -192,7 +211,7 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
         gl.glEnable(GL10.GL_DEPTH_TEST);
-//        gl.glDepthFunc(GL10.GL_LEQUAL);
+        gl.glDepthFunc(GL10.GL_LEQUAL);
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -299,10 +318,25 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
 //        gl.glColor4f(0.63671875f, 0.76953125f, 0.22265625f, 0.0f);
 
-//?        drawVertexBuffer(gl, vertices, verticesCount);
-        drawVertexBuffer(gl, cubeVertices, cubeVerticesCount);
+//?        drawTrianglesColoredVertexBuffer(gl, vertices, verticesCount);
+        drawTrianglesColoredVertexBuffer(gl, cubeVertices, cubeVerticesCount);
 
+        drawSelection(gl, game);
+    }
 
+    private void drawSelection(GL10 gl, Game game) {
+        Game.XYZ4 selection = game.getSelection();
+        if (selection != null) {
+            Buffer buf = createLineLoopCoordsColoredBuffer(new float[]{
+                    (float) selection.p1.getX(), (float) selection.p1.getY(), (float) selection.p1.getZ(),
+                    (float) selection.p2.getX(), (float) selection.p2.getY(), (float) selection.p2.getZ(),
+                    (float) selection.p3.getX(), (float) selection.p3.getY(), (float) selection.p3.getZ(),
+                    (float) selection.p4.getX(), (float) selection.p4.getY(), (float) selection.p4.getZ(),
+            }, 0xc060a0);
+//            gl.glColor4f(0.2f, 0.9f, 0.2f, 1.0f);
+//            gl.glColor4f(1f, 0f, 0f, 0.0f);
+            drawLineLoopColoredBuffer(gl, buf, 4);
+        }
     }
 
     private void executeCommands(GL10 gl) {
@@ -319,10 +353,19 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
         command.execute(gl);
     }
 
-    private void drawVertexBuffer(GL10 gl, Buffer buffer, int verticesCount) {
+    private void drawTrianglesColoredVertexBuffer(GL10 gl, Buffer buffer, int verticesCount) {
         gl.glVertexPointer(3, GL10.GL_FLOAT, 3*4 + 4, buffer.position(0));
         gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
         gl.glDrawArrays(GL10.GL_TRIANGLES, 0, verticesCount);
+    }
+
+    private void drawLineLoopColoredBuffer(GL10 gl, Buffer buffer, int verticesCount) {
+//        gl.glVertexPointer(3, GL10.GL_FLOAT, /*3*4 + 4*/0, buffer.position(0));
+////        gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
+//        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, verticesCount);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 3*4 + 4, buffer.position(0));
+        gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
+        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, verticesCount);
     }
 
     public void resetGeometry() {

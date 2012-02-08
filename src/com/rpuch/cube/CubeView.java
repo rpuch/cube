@@ -34,7 +34,7 @@ public class CubeView extends GLSurfaceView {
             Game.Facet facet = getGame().getClickedFacet(glX, glY);
             if (facet != null) {
                 System.out.println(String.format("Face %d, <row,col> is <%d,%d>", facet.getFace(), facet.getRow(), facet.getCol()));
-                // TODO:
+                getGame().startSelection(facet);
             } else {
                 boolean left = event.getX() < width / 3;
                 boolean right = event.getX() > width * 2 / 3;
@@ -53,6 +53,8 @@ public class CubeView extends GLSurfaceView {
                     getGame().rotateInTerminatorPlain(+15f);
                 }
             }
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            getGame().resetSelection();
         }
         return true;
     }
