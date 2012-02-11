@@ -136,7 +136,7 @@ public class Cube {
             delta = 1;
         } else {
             from = size - 1;
-            to = size - 1 + cols;
+            to = size - 1 + cols + 1;
             border = to - 1;
             delta = -1;
         }
@@ -163,7 +163,7 @@ public class Cube {
             delta = 1;
         } else {
             from = size - 1;
-            to = size - 1 + plains;
+            to = size - 1 + plains + 1;
             border = to - 1;
             delta = -1;
         }

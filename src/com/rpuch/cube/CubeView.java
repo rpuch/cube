@@ -10,10 +10,12 @@ import com.rpuch.cube.tech.Objs;
  * @author rpuch
  */
 public class CubeView extends GLSurfaceView {
+    private CubeRenderer renderer;
+
     public CubeView(Context context) {
         super(context);
 
-        setRenderer(new CubeRenderer());
+        setRenderer(renderer = new CubeRenderer());
     }
 
     @Override
@@ -26,11 +28,10 @@ public class CubeView extends GLSurfaceView {
     public boolean onTouchEvent(MotionEvent event) {
         int width = getWidth();
         int height = getHeight();
-        CubeRenderer renderer = Objs.getRenderer();
+        float glX = ((float) (event.getX() - width/2)) / (width/2);
+        float glY = - ((float) (event.getY() - height/2)) / (height/2);
 
         if (event.getAction() == MotionEvent.ACTION_DOWN && renderer != null) {
-            float glX = ((float) (event.getX() - width/2)) / (width/2);
-            float glY = - ((float) (event.getY() - height/2)) / (height/2);
             Game.Facet facet = getGame().getClickedFacet(glX, glY);
             if (facet != null) {
                 System.out.println(String.format("Face %d, <row,col> is <%d,%d>", facet.getFace(), facet.getRow(), facet.getCol()));
@@ -53,8 +54,20 @@ public class CubeView extends GLSurfaceView {
                     getGame().rotateInTerminatorPlain(+15f);
                 }
             }
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            Game.Facet start = getGame().getSelectionStart();
+            if (start != null) {
+                Game.Facet facet = getGame().getClickedFacet(glX, glY);
+                if (facet != null && facet.getFace() == start.getFace()) {
+                    getGame().selectTo(facet);
+                }
+            }
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            boolean rotated = getGame().rotateIfNeeded();
             getGame().resetSelection();
+            if (rotated) {
+                renderer.resetGeometry();
+            }
         }
         return true;
     }

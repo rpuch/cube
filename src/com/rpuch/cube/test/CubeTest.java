@@ -7,6 +7,7 @@ import com.rpuch.cube.test.framework.AssertionException;
 /**
  * @author rpuch
  */
+@SuppressWarnings({"UnusedDeclaration"})
 public class CubeTest {
     private Cube cube;
 
@@ -216,11 +217,45 @@ public class CubeTest {
 
     }
 
-    public void testRotateVertRightBackwards() {
+    public void testRotateVertRightBackwards1() {
         cube = new Cube(3, TEST_COLORS);
         initCube();
 
         cube.rotateVert(-1, false); // backwards
+
+        assertCubeEquals(new int[][][]{
+                {
+                        {11, 12, 13},
+                        {14, 15, 16},
+                        {17, 18, 19}},
+                {
+                        {21, 22, 57},
+                        {24, 25, 54},
+                        {27, 28, 51}},
+                {
+                        {37, 34, 31},
+                        {38, 35, 32},
+                        {39, 36, 33}},
+                {
+                        {69, 42, 43},
+                        {66, 45, 46},
+                        {63, 48, 49}},
+                {
+                        {41, 52, 53},
+                        {44, 55, 56},
+                        {47, 58, 59}},
+                {
+                        {61, 62, 23},
+                        {64, 65, 26},
+                        {67, 68, 29}},
+        }, cube);
+    }
+
+    public void testRotateVertRightBackwards2() {
+        cube = new Cube(3, TEST_COLORS);
+        initCube();
+
+        cube.rotateVert(-2, false); // backwards
 
         assertCubeEquals(new int[][][]{
                 {
@@ -285,11 +320,46 @@ public class CubeTest {
 
     }
 
-    public void testRotateVertRightForward() {
+    public void testRotateVertRightForward1() {
         cube = new Cube(3, TEST_COLORS);
         initCube();
 
         cube.rotateVert(-1, true); // forward
+
+        assertCubeEquals(new int[][][]{
+                {
+                        {11, 12, 13},
+                        {14, 15, 16},
+                        {17, 18, 19}},
+                {
+                        {21, 22, 63},
+                        {24, 25, 66},
+                        {27, 28, 69}},
+                {
+                        {33, 36, 39},
+                        {32, 35, 38},
+                        {31, 34, 37}},
+                {
+                        {51, 42, 43},
+                        {54, 45, 46},
+                        {57, 48, 49}},
+                {
+                        {29, 52, 53},
+                        {26, 55, 56},
+                        {23, 58, 59}},
+                {
+                        {61, 62, 47},
+                        {64, 65, 44},
+                        {67, 68, 41}},
+        }, cube);
+
+    }
+
+    public void testRotateVertRightForward2() {
+        cube = new Cube(3, TEST_COLORS);
+        initCube();
+
+        cube.rotateVert(-2, true); // forward
 
         assertCubeEquals(new int[][][]{
                 {
@@ -355,11 +425,46 @@ public class CubeTest {
 
     }
 
-    public void testRotateSidewaysBackCounterclockwise() {
+    public void testRotateSidewaysBackCounterclockwise1() {
         cube = new Cube(3, TEST_COLORS);
         initCube();
 
         cube.rotateSideways(-1, false); // counter-clockwise
+
+        assertCubeEquals(new int[][][]{
+                {
+                        {63, 12, 13},
+                        {62, 15, 16},
+                        {61, 18, 19}},
+                {
+                        {21, 22, 23},
+                        {24, 25, 26},
+                        {27, 28, 29}},
+                {
+                        {31, 32, 51},
+                        {34, 35, 52},
+                        {37, 38, 53}},
+                {
+                        {47, 44, 41},
+                        {48, 45, 42},
+                        {49, 46, 43}},
+                {
+                        {17, 14, 11},
+                        {54, 55, 56},
+                        {57, 58, 59}},
+                {
+                        {33, 36, 39},
+                        {64, 65, 66},
+                        {67, 68, 69}},
+        }, cube);
+
+    }
+
+    public void testRotateSidewaysBackCounterclockwise2() {
+        cube = new Cube(3, TEST_COLORS);
+        initCube();
+
+        cube.rotateSideways(-2, false); // counter-clockwise
 
         assertCubeEquals(new int[][][]{
                 {
@@ -425,11 +530,46 @@ public class CubeTest {
 
     }
 
-    public void testRotateSidewaysBackClockwise() {
+    public void testRotateSidewaysBackClockwise1() {
         cube = new Cube(3, TEST_COLORS);
         initCube();
 
         cube.rotateSideways(-1, true); // clockwise
+
+        assertCubeEquals(new int[][][]{
+                {
+                        {53, 12, 13},
+                        {52, 15, 16},
+                        {51, 18, 19}},
+                {
+                        {21, 22, 23},
+                        {24, 25, 26},
+                        {27, 28, 29}},
+                {
+                        {31, 32, 61},
+                        {34, 35, 62},
+                        {37, 38, 63}},
+                {
+                        {43, 46, 49},
+                        {42, 45, 48},
+                        {41, 44, 47}},
+                {
+                        {33, 36, 39},
+                        {54, 55, 56},
+                        {57, 58, 59}},
+                {
+                        {17, 14, 11},
+                        {64, 65, 66},
+                        {67, 68, 69}},
+        }, cube);
+
+    }
+
+    public void testRotateSidewaysBackClockwise2() {
+        cube = new Cube(3, TEST_COLORS);
+        initCube();
+
+        cube.rotateSideways(-2, true); // clockwise
 
         assertCubeEquals(new int[][][]{
                 {

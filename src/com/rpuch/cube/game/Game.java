@@ -221,6 +221,10 @@ public class Game {
         selectionEnd = start;
     }
 
+    public void selectTo(Facet end) {
+        selectionEnd = end;
+    }
+
     public void resetSelection() {
         selectionStart = selectionEnd = null;
     }
@@ -263,6 +267,95 @@ public class Game {
             case Cube.BOTTOM:
                 return new Geom.XYZ(glX, -GeomConstants.CUBE_MAGNITUDE, glY);
             default: throw new IllegalArgumentException("Unknown face: " + face);
+        }
+    }
+
+    public Rotation computeSelectionRotation() {
+        Game.Facet start = getSelectionStart();
+        Game.Facet end = getSelectionEnd();
+        if (start != null && end != null && start.getFace() == end.getFace()) {
+            int diffX = end.getCol() - start.getCol();
+            int diffY = end.getRow() - start.getRow();
+            int modX = Math.abs(diffX);
+            int modY = Math.abs(diffY);
+            boolean xChanged = diffX != 0;
+            boolean yChanged = diffY != 0;
+            if ((xChanged || yChanged) && (modX != modY)) {
+                boolean byX = modX > modY;
+                int parallel = byX ? diffX : diffY;
+                int parallelMod = byX ? modX : modY;
+                int orthoMod = byX ? modY : modX;
+                int parallelFrom = byX ? Math.min(start.getCol(), end.getCol()) : Math.min(start.getRow(), end.getRow());
+                int parallelTo = byX ? Math.max(start.getCol(), end.getCol()) : Math.max(start.getRow(), end.getRow());
+                int orthoFrom = byX ? Math.min(start.getRow(), end.getRow()) : Math.min(start.getCol(), end.getCol());
+                int orthoTo = byX ? Math.max(start.getRow(), end.getRow()) : Math.max(start.getCol(), end.getCol());
+                if (orthoFrom == 0 || orthoTo == getCube().getSize() - 1) {
+                    int orthoSpan = orthoTo - orthoFrom + 1;
+                    int units = orthoFrom == 0 ? orthoSpan : -orthoSpan;
+                    switch (start.getFace()) {
+                        case Cube.LEFT:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.HORIZ, units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.SIDEWAYS, -units, parallel < 0);
+                            }
+                        case Cube.RIGHT:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.HORIZ, units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.SIDEWAYS, units, parallel > 0);
+                            }
+                        case Cube.FRONT:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.HORIZ, units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.VERT, units, parallel > 0);
+                            }
+                        case Cube.BACK:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.HORIZ, units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.VERT, -units, parallel < 0);
+                            }
+                        case Cube.TOP:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.SIDEWAYS, -units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.VERT, units, parallel > 0);
+                            }
+                        case Cube.BOTTOM:
+                            if (byX) {
+                                return new Rotation(Rotation.Plain.SIDEWAYS, -units, parallel > 0);
+                            } else {
+                                return new Rotation(Rotation.Plain.VERT, -units, parallel < 0);
+                            }
+                        default: throw new IllegalStateException("Unknown face: " + start.getFace());
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean rotateIfNeeded() {
+        Rotation rotation = computeSelectionRotation();
+        if (rotation != null) {
+            System.out.println(String.format("Rotation: %s, %d, %b", rotation.getPlain(), rotation.getUnits(), rotation.isDir()));
+            switch (rotation.getPlain()) {
+                case HORIZ:
+                    cube.rotateHoriz(rotation.getUnits(), rotation.isDir());
+                    break;
+                case VERT:
+                    cube.rotateVert(rotation.getUnits(), rotation.isDir());
+                    break;
+                case SIDEWAYS:
+                    cube.rotateSideways(rotation.getUnits(), rotation.isDir());
+                    break;
+                default: throw new IllegalStateException("Unknown plain: " + rotation.getPlain());
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -320,5 +413,31 @@ public class Game {
             this.p3 = p3;
             this.p4 = p4;
         }
+    }
+
+    public static class Rotation {
+        private Plain plain;
+        private int units;
+        private boolean dir;
+
+        public Rotation(Plain plain, int units, boolean dir) {
+            this.plain = plain;
+            this.units = units;
+            this.dir = dir;
+        }
+
+        public Plain getPlain() {
+            return plain;
+        }
+
+        public int getUnits() {
+            return units;
+        }
+
+        public boolean isDir() {
+            return dir;
+        }
+
+        public static enum Plain { HORIZ, VERT, SIDEWAYS }
     }
 }
