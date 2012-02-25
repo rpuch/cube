@@ -132,5 +132,14 @@ public class Geom {
         public double dotProduct(XYZ v) {
             return x*v.x + y*v.y + z*v.z;
         }
+
+        public double angleWithVectorInDegrees(XYZ v) {
+            double cos = this.dotProduct(v)/this.magnitude()/v.magnitude();
+            return Trig.radiansToDegrees(Math.acos(cos));
+        }
+
+        public String toString() {
+            return String.format("%2.2f/%2.2f/%2.2f", x, y, z);
+        }
     }
 }

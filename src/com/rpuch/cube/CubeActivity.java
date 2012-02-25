@@ -1,32 +1,49 @@
 package com.rpuch.cube;
 
 import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import com.rpuch.cube.game.Game;
 import com.rpuch.cube.tech.Objs;
 
-public class CubeActivity extends Activity {
+public class CubeActivity extends Activity implements SensorEventListener {
     private CubeView view;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         view = new CubeView(this);
         setContentView(view);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        getGame().start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         view.onPause();
+        sensorManager.unregisterListener(this);
+        Log.i("cube", "Uninstalled accelerometer listener");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         view.onResume();
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        Log.i("cube", "Installed accelerometer listener");
     }
 
     @Override
@@ -77,5 +94,12 @@ public class CubeActivity extends Activity {
 
     private Game getGame() {
         return Objs.getGame();
+    }
+
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        getGame().getPhysics().onSensorEvent(sensorEvent);
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }

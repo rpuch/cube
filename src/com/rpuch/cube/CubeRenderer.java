@@ -11,10 +11,8 @@ import com.rpuch.cube.tech.Objs;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import java.nio.*;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -355,8 +353,15 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 
     private void drawTrianglesColoredVertexBuffer(GL10 gl, Buffer buffer, int verticesCount) {
         gl.glVertexPointer(3, GL10.GL_FLOAT, 3*4 + 4, buffer.position(0));
-        gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
-        gl.glDrawArrays(GL10.GL_TRIANGLES, 0, verticesCount);
+        gl.glColorPointer(4, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
+//        gl.glDrawArrays(GL10.GL_TRIANGLES, 0, verticesCount);
+        for (int i = 0; i < verticesCount / 6; i++) {
+            gl.glDrawArrays(GL10.GL_TRIANGLES, i*6, 6);
+        }
+//        int[] a = new int[1];
+//        IntBuffer b = IntBuffer.allocate(1);
+//        gl.glGetIntegerv(GL10.GL_MAX_ELEMENTS_VERTICES, null);
+//        System.out.println(Arrays.asList(a));
     }
 
     private void drawLineLoopColoredBuffer(GL10 gl, Buffer buffer, int verticesCount) {
@@ -364,7 +369,7 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
 ////        gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
 //        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, verticesCount);
         gl.glVertexPointer(3, GL10.GL_FLOAT, 3*4 + 4, buffer.position(0));
-        gl.glColorPointer(3, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
+        gl.glColorPointer(4, GL10.GL_UNSIGNED_BYTE, 3*4 + 4, buffer.position(3 * 4));
         gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, verticesCount);
     }
 

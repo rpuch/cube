@@ -15,12 +15,22 @@ public class Game {
     private Facet selectionStart = null;
     private Facet selectionEnd = null;
 
+    private Physics physics = new Physics(this);
+
     public Game() {
         cube = new Cube(3);
     }
 
     public Cube getCube() {
         return cube;
+    }
+
+    public void start() {
+        physics.start();
+    }
+
+    public void stop() {
+        physics.stop();
     }
 
     public Geom.XYZ getEyePoint() {
@@ -357,6 +367,10 @@ public class Game {
         } else {
             return false;
         }
+    }
+
+    public Physics getPhysics() {
+        return physics;
     }
 
     public static class Facet {

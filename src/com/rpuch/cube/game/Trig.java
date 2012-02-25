@@ -9,4 +9,8 @@ public class Trig {
     public static float degreesToRadians(float degrees) {
         return (float) (degrees / 180 * Math.PI);
     }
+
+    public static double radiansToDegrees(double radians) {
+        return radians * 180 / Math.PI;
+    }
 }

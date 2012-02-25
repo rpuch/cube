@@ -15,6 +15,8 @@ public class CubeView extends GLSurfaceView {
     public CubeView(Context context) {
         super(context);
 
+        setDebugFlags(DEBUG_CHECK_GL_ERROR/* | DEBUG_LOG_GL_CALLS*/);
+
         setRenderer(renderer = new CubeRenderer());
     }
 
@@ -34,7 +36,7 @@ public class CubeView extends GLSurfaceView {
         if (event.getAction() == MotionEvent.ACTION_DOWN && renderer != null) {
             Game.Facet facet = getGame().getClickedFacet(glX, glY);
             if (facet != null) {
-                System.out.println(String.format("Face %d, <row,col> is <%d,%d>", facet.getFace(), facet.getRow(), facet.getCol()));
+//                System.out.println(String.format("Face %d, <row,col> is <%d,%d>", facet.getFace(), facet.getRow(), facet.getCol()));
                 getGame().startSelection(facet);
             } else {
                 boolean left = event.getX() < width / 3;
@@ -69,6 +71,9 @@ public class CubeView extends GLSurfaceView {
                 renderer.resetGeometry();
             }
         }
+
+        getGame().getPhysics().nullifySpeed();
+
         return true;
     }
 
