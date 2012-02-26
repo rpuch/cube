@@ -15,6 +15,8 @@ public class CubeActivity extends Activity implements SensorEventListener {
     private CubeView view;
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor orientation;
+    private Sensor magneticField;
 
     /** Called when the activity is first created. */
     @Override
@@ -26,6 +28,8 @@ public class CubeActivity extends Activity implements SensorEventListener {
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        orientation = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         getGame().start();
     }
@@ -35,7 +39,7 @@ public class CubeActivity extends Activity implements SensorEventListener {
         super.onPause();
         view.onPause();
         sensorManager.unregisterListener(this);
-        Log.i("cube", "Uninstalled accelerometer listener");
+        Log.i("cube", "Uninstalled sensors listener");
     }
 
     @Override
@@ -43,7 +47,9 @@ public class CubeActivity extends Activity implements SensorEventListener {
         super.onResume();
         view.onResume();
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        Log.i("cube", "Installed accelerometer listener");
+        sensorManager.registerListener(this, orientation, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magneticField, SensorManager.SENSOR_DELAY_NORMAL);
+        Log.i("cube", "Installed sensors listener");
     }
 
     @Override
